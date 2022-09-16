@@ -1,0 +1,60 @@
+{
+	"compilerOptions": {
+	  "emitDecoratorMetadata": true,
+	  "experimentalDecorators": true,
+	  "allowJs": false,
+	  "allowUnreachableCode": false,
+	  "declaration": true,
+	  "moduleResolution": "node",
+	  "noImplicitAny": false,
+	  "noUnusedLocals": false,
+	  "noUnusedParameters": false,
+	  "module": "commonjs",
+	  "esModuleInterop": true,
+	  "allowSyntheticDefaultImports": true,
+	  "forceConsistentCasingInFileNames": true,
+	  "target": "es2018",
+	  "lib": ["es2018", "esnext.asynciterable"],
+	  "skipLibCheck": true,
+	  "sourceMap": true,
+	  "strictNullChecks": false,
+	  "baseUrl": "./src",
+	  "noErrorTruncation": true,
+	  "paths": {
+		"@src/*": [
+		  "./*"
+		]
+	  },
+	  "strictBindCallApply": true,
+	  "outDir": "lib"
+	},
+	"include": [
+	  "src/**/*"
+	],
+	"exclude": [
+	  "node_modules",
+	  "src/tests",
+	  "src/coverage",
+	  "src/demo",
+	  "src/debugger"
+	],
+	"typedocOptions": {
+	  "name": "Utilities",
+	  "entryPoints": ["./src"],
+	  "entryPointStrategy": "expand",
+	  "exclude": ["**/tests/**", "**/coverage/**",  "**/demo/**", "**/testing-utils/graph/accounts/**"],
+	  "out": "typedoc",
+	  "darkHighlightTheme": "github-dark",
+	  "pretty": true,
+	  "disableSources": true,
+	  "categorizeByGroup": true,
+	  "githubPages": false,
+	  "defaultCategory": "Utilities",
+	  "excludeExternals": true,
+	  "readme": "none"
+	},
+	"ts-node": {
+	  "transpileOnly": true,
+	  "transpiler": "ts-node/transpilers/swc-experimental"
+	}
+  }

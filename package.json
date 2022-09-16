@@ -1,0 +1,10 @@
+{
+  "name": "ts-retry-helper",
+  "version": "1.0.0",
+  "description": "A library for easily customizing retry logic",
+  "main": "index.js",
+  "repository": "https://github.com/jcrites/ts-retry-helper",
+  "author": "Justin Crites <jcrites@gmail.com>",
+  "license": "MIT",
+  "private": true
+}
