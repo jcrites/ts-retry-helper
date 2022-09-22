@@ -1,13 +1,21 @@
-import { predicate } from "fp-ts";
-import { PredicateWithIndex } from "fp-ts/lib/FilterableWithIndex";
-import { composeIso } from "monocle-ts/Iso";
-// import { Newtype, iso } from "newtype-ts";
+/**
+ * TODO: 
+ * Rather than using the system clock directly,
+ * I'd like to rework this class to accept
+ * by dependency injection, so that tests can
+ * manipulate time and return whatever time values
+ * they wish to all code under test
+ */
+
 import { EventEmitter } from "node:events";
 
 export type AsyncFunction<ReturnType = void> = (
 	args?: any[]
 ) => Promise<ReturnType>;
 
+/**
+ * Sleeps at least the specified number of milliseconds
+ */
 const sleep: (ms?: number) => void = (ms?: number) =>
 	new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -38,9 +46,6 @@ class MaxAttemptsRetryAllowed implements RetryOption {
 		}
 	}
 }
-
-type Attempts = number;
-type MillisecondsT = number;
 
 /**
  * An option that implements linear backoff between retry attempts
@@ -84,7 +89,7 @@ export class MaxTimeout implements RetryOption {
 		}, this.totalTimeoutMs - timestamp.getTime());
 	}
 
-	private throwTimeout():never {
+	private throwTimeout(): never {
 		throw new MaxTimeoutException(
 			`Attempt took longer than maximum specified ${this.totalTimeoutMs} milliseconds`,
 			"408"
@@ -99,6 +104,29 @@ export class MaxTimeoutException extends Error {
 		readonly cause?: any
 	) {
 		super(code);
+	}
+}
+
+/**
+ * If included as an option, randomly adds jitter to the delay
+ * between retry attempts, specified between @param minJitterMs and @param maxJitterMs.
+ * 
+ * This randomness helps ensures that when multiple processes or coroutines are all attempting
+ * to retry the same operation simultaneous (such as after a system failure), that they do not all
+ * simultaneously call the downstream system, flooding it with load. Jitter spreads that load
+ * out over time.
+ * 
+ * A reasonable value for jitter depends on the operation being performed, how many other processes
+ * might be attempting to access it, how amenable it is to becoming overloaded, and how long the operations take.
+ * 
+ * Jitter works especially well with exponential backoff to prevent outages from one system from cascading to others.
+ */
+class DelayJitter implements RetryOption {
+	constructor(private readonly minJitterMs: number = 100, private readonly maxJitterMs: number = 250) {
+		assert(maxJitterMs > minJitterMs);
+	}
+	retryDelayMs(previousDelayMs: number, timestamp: Date): number {
+		return Math.random()*(this.maxJitterMs-this.minJitterMs) + previousDelayMs;
 	}
 }
 
@@ -142,6 +170,19 @@ export class MaxAttemptsException extends Error {
 declare const TIMEOUT: unique symbol;
 const eventEmitter = new EventEmitter();
 
+/**
+ * Create a RetryHelper to assist in retrying the execution of
+ * the function @param f in the event of retriable failures.
+ * @class RetryHelper helps you construct a policy suitable for
+ * retrying your function, whether linear backoff, exponential backoff,
+ * or a simple maximum time that your code can spend attempting
+ * the operation.
+ *
+ * To configure how the retry logic behaves, pass instances of @class RetryOption
+ * as input to the constructor, such as @class MaxTimeout, which will abort the
+ * call if a timer expires, or @class ExponentialBackoff, which implements retry
+ * with basic exponential backoff.
+ */
 export class RetryHelper<T> {
 	readonly startTimestamp = new Date();
 	constructor(
@@ -163,7 +204,7 @@ export class RetryHelper<T> {
 		/**
 		 * Create an EventEmitter so that if
 		 * one of the RetryOption has decided
-		 * that the attempt has been exhausted, 
+		 * that the attempt has been exhausted,
 		 * it can notify this function and throw an exception
 		 */
 		const onErr = (err) => {

@@ -1,0 +1,20 @@
+{
+  "name": "ts-retry-helper",
+  "version": "1.0.0",
+  "description": "A library for easily customizing retry logic",
+  "main": "index.js",
+  "repository": "https://github.com/jcrites/ts-retry-helper",
+  "author": "Justin Crites <jcrites@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": "^16.13.1",
+    "npm": "^8.3.1",
+    "yarn": "^3.0.0"
+  },
+  "packageManager": "yarn@3.0.0",
+  "scripts":{
+    "eslint": "eslint --ext .js,.jsx,.ts,.tsx src/ --max-warnings 0",
+    "build": "tsc"
+  }
+}
